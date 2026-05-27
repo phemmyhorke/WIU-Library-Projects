@@ -1,3 +1,34 @@
+# WIU Libraries Associate Librarian Scheduler (Premium UI)
+
+## Updated scope
+This scheduler is now explicitly configured for the two WIU Libraries Associate Librarians:
+- Nadia Nieblas Nunez
+- Stacia McKeever
+
+## What changed in this revision
+- Replaced the original basic interface with a premium, presentation-ready experience using a branded hero layout, refined cards, and cleaner visual hierarchy.
+- Updated booking flow to emphasize associate-librarian selection first.
+- Limited staff list to the two specified librarians only.
+- Retained Calendly-style workflow and backend integration placeholders so it can be adapted to existing `wiu.edu/libraries` infrastructure.
+
+## Integration approach for WIU Libraries page
+1. Host this file under WIU-managed web infrastructure.
+2. Embed directly in the WIU Libraries page template or in an iframe block.
+3. Connect frontend calls to API endpoints:
+   - `GET /api/availability?librarianId=&date=`
+   - `POST /api/appointments`
+   - `POST /api/appointments/:id/cancel`
+4. Backend integrates with Google Calendar + Gmail for:
+   - Free/busy checking
+   - Event creation in librarian calendars
+   - Email confirmation and ICS invitation delivery
+
+## Production hardening checklist
+- [ ] Add server-side validation for librarian identity and time slot locking.
+- [ ] Add anti-spam/rate limiting for public forms.
+- [ ] Enforce timezone consistency (`America/Chicago`).
+- [ ] Add accessibility QA (keyboard, screen-reader labels, contrast).
+- [ ] Add event cancellation/rescheduling links.
 # WIU Libraries Appointment Scheduler (Calendly-style) Implementation Plan
 
 ## What is included
