@@ -3,6 +3,281 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WIU Libraries | Associate Librarian Appointments</title>
+  <style>
+    :root {
+      --wiu-purple: #4b2e83;
+      --wiu-gold: #ffcc00;
+      --ink: #1a1f36;
+      --muted: #6a7087;
+      --bg: #f4f5fb;
+      --surface: #ffffff;
+      --line: #e7e9f3;
+      --ok: #0d7c4a;
+      --radius: 14px;
+      --shadow: 0 16px 40px rgba(24, 34, 70, .10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 450px at 5% -10%, #ede7fa 0, transparent 70%),
+        radial-gradient(1000px 450px at 105% -15%, #fff4cc 0, transparent 65%),
+        var(--bg);
+    }
+
+    .container { max-width: 1180px; margin: 2.3rem auto; padding: 0 1rem; }
+    .shell {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .hero {
+      background: linear-gradient(120deg, #3f256f 0%, #4b2e83 45%, #6a49a8 100%);
+      color: #fff;
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 1.25rem;
+      align-items: center;
+    }
+
+    .hero h1 { margin: 0 0 .5rem; font-size: 1.9rem; }
+    .hero p { margin: 0; line-height: 1.55; color: #e8defc; }
+    .pill { display: inline-block; margin-top: 1rem; background: #ffcc00; color: #252525; font-weight: 700; border-radius: 999px; padding: .35rem .75rem; font-size: .8rem; }
+
+    .hero-card {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.22);
+      border-radius: var(--radius);
+      padding: 1rem;
+      backdrop-filter: blur(4px);
+    }
+    .hero-card h3 { margin: 0 0 .5rem; font-size: 1rem; }
+    .hero-card ul { margin: 0; padding-left: 1.1rem; color: #f0e9ff; }
+
+    .content { padding: 1.25rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 980px) {
+      .hero, .content { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 1rem;
+      background: #fff;
+    }
+    .panel h2 { margin: 0 0 .9rem; font-size: 1.08rem; }
+
+    label { display: block; font-weight: 600; margin: .8rem 0 .35rem; font-size: .9rem; }
+    input, select, textarea, button {
+      width: 100%;
+      padding: .68rem .75rem;
+      border-radius: 10px;
+      border: 1px solid #cfd5e6;
+      font-size: .95rem;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: 2px solid #d9ccf4;
+      border-color: #8b6cc6;
+    }
+
+    .librarians { display: grid; grid-template-columns: 1fr; gap: .6rem; margin-top: .35rem; }
+    .lib-card {
+      border: 1px solid #d8ddef;
+      border-radius: 12px;
+      padding: .7rem;
+      cursor: pointer;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: .6rem;
+      align-items: center;
+    }
+    .lib-card.active { border-color: var(--wiu-purple); background: #f4efff; }
+
+    .avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      display: grid; place-items: center; font-weight: 700;
+      color: #fff; background: linear-gradient(145deg, #4b2e83, #7e5ac2);
+    }
+
+    .sub { color: var(--muted); font-size: .85rem; }
+    .slots { margin-top: .5rem; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: .5rem; }
+    .slot {
+      border: 1px solid #cdd3e5;
+      border-radius: 10px;
+      padding: .58rem;
+      font-weight: 600;
+      background: #fff;
+      cursor: pointer;
+    }
+    .slot.active { background: #ede7fb; border-color: #5b3a97; }
+
+    .btn {
+      margin-top: 1rem;
+      background: linear-gradient(120deg, #4b2e83, #6d4cae);
+      color: #fff; border: 0; font-weight: 700;
+      box-shadow: 0 8px 20px rgba(75,46,131,.25);
+      cursor: pointer;
+    }
+    .btn:hover { opacity: .96; }
+
+    .notice { font-size: .86rem; color: #7a5f1a; background: #fff8dd; border: 1px solid #f3e4a7; border-radius: 10px; padding: .6rem; margin-top: .8rem; }
+    .result { margin-top: .8rem; color: var(--ok); font-weight: 700; }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      background: #fbfbff;
+      padding: 1rem 1.25rem 1.4rem;
+    }
+    .footer h3 { margin: .2rem 0 .6rem; }
+    .footer ul { margin: 0; padding-left: 1.1rem; color: #3a4261; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <main class="shell">
+      <section class="hero">
+        <div>
+          <h1>Book a WIU Libraries Associate Librarian</h1>
+          <p>Premium scheduling experience for the WIU Libraries website with Google Calendar/Gmail-ready integration. This page is optimized for embedding on <strong>wiu.edu/libraries</strong>.</p>
+          <span class="pill">Calendly-style Booking Experience</span>
+        </div>
+        <aside class="hero-card">
+          <h3>Associate Librarians</h3>
+          <ul>
+            <li>Nadia Nieblas Nunez</li>
+            <li>Stacia McKeever</li>
+          </ul>
+        </aside>
+      </section>
+
+      <section class="content">
+        <section class="panel">
+          <h2>1) Select librarian, service, and time</h2>
+
+          <label>Associate Librarian</label>
+          <div id="librarians" class="librarians"></div>
+
+          <label for="service">Service type</label>
+          <select id="service">
+            <option value="research">Research Consultation (45 min)</option>
+            <option value="citation">Citation & Style Support (30 min)</option>
+            <option value="instruction">Course Library Instruction Planning (60 min)</option>
+            <option value="collections">Library Collections / Resource Support (45 min)</option>
+          </select>
+
+          <label for="date">Appointment date</label>
+          <input id="date" type="date" />
+
+          <label>Available time slots (America/Chicago)</label>
+          <div id="slots" class="slots"></div>
+          <p class="sub">Production note: pull slots from <code>GET /api/availability</code> using Google Calendar free/busy checks.</p>
+        </section>
+
+        <section class="panel">
+          <h2>2) Enter request details</h2>
+          <label for="name">Full name</label>
+          <input id="name" placeholder="Jordan Smith" />
+
+          <label for="email">WIU email</label>
+          <input id="email" type="email" placeholder="j-smith@wiu.edu" />
+
+          <label for="department">Department / Program</label>
+          <input id="department" placeholder="English" />
+
+          <label for="notes">How can we help?</label>
+          <textarea id="notes" rows="4" placeholder="Please include class/project context and preferred format (in-person or virtual)."></textarea>
+
+          <button id="bookBtn" class="btn">Book Appointment</button>
+          <p id="result" class="result" hidden></p>
+          <p class="notice">Demo mode enabled. Replace local simulation with <code>POST /api/appointments</code> for live Google Calendar + Gmail confirmations.</p>
+        </section>
+      </section>
+
+      <section class="footer">
+        <h3>Integration fit for current WIU Libraries infrastructure</h3>
+        <ul>
+          <li>Embed as a dedicated page or via iframe inside existing WIU Libraries CMS blocks.</li>
+          <li>Use a secure backend to create events on librarian calendars via service-account delegation.</li>
+          <li>Automatically send confirmation emails and calendar invites to both requester and librarian.</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const librarians = [
+      { name: 'Nadia Nieblas Nunez', email: 'nadia.nieblasnunez@wiu.edu' },
+      { name: 'Stacia McKeever', email: 'stacia.mckeever@wiu.edu' }
+    ];
+
+    const sampleSlots = ['09:00 AM', '10:00 AM', '11:30 AM', '01:00 PM', '02:30 PM', '03:30 PM'];
+    const state = { librarianIndex: 0, slot: null };
+
+    const libRoot = document.getElementById('librarians');
+    const slotsRoot = document.getElementById('slots');
+
+    function initials(name) {
+      return name.split(' ').map(s => s[0]).slice(0, 2).join('').toUpperCase();
+    }
+
+    function renderLibrarians() {
+      libRoot.innerHTML = '';
+      librarians.forEach((lib, i) => {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'lib-card' + (i === state.librarianIndex ? ' active' : '');
+        card.innerHTML = `<span class="avatar">${initials(lib.name)}</span><span><strong>${lib.name}</strong><br><span class="sub">Associate Librarian</span></span>`;
+        card.onclick = () => { state.librarianIndex = i; renderLibrarians(); };
+        libRoot.appendChild(card);
+      });
+    }
+
+    function renderSlots() {
+      slotsRoot.innerHTML = '';
+      sampleSlots.forEach(slot => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'slot' + (state.slot === slot ? ' active' : '');
+        btn.textContent = slot;
+        btn.onclick = () => { state.slot = slot; renderSlots(); };
+        slotsRoot.appendChild(btn);
+      });
+    }
+
+    renderLibrarians();
+    renderSlots();
+
+    document.getElementById('bookBtn').onclick = () => {
+      const payload = {
+        librarian: librarians[state.librarianIndex],
+        service: document.getElementById('service').value,
+        date: document.getElementById('date').value,
+        slot: state.slot,
+        name: document.getElementById('name').value.trim(),
+        email: document.getElementById('email').value.trim(),
+        department: document.getElementById('department').value.trim(),
+        notes: document.getElementById('notes').value.trim()
+      };
+
+      if (!payload.date || !payload.slot || !payload.name || !payload.email) {
+        alert('Please complete required fields: date, time slot, full name, and email.');
+        return;
+      }
+
+      const result = document.getElementById('result');
+      result.textContent = `Booked: ${payload.date} at ${payload.slot} with ${payload.librarian.name}. Confirmation sent to ${payload.email}.`;
+      result.hidden = false;
+    };
+  </script>
   <title>WIU Libraries — Book an Appointment</title>
   <style>
     :root { --wiu-purple:#4b2e83; --wiu-gold:#ffcc00; --bg:#f7f7fb; --text:#1f2430; }
