@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WIU Libraries — Book an Appointment</title>
+  <style>
+    :root { --wiu-purple:#4b2e83; --wiu-gold:#ffcc00; --bg:#f7f7fb; --text:#1f2430; }
+    body { font-family: Arial, sans-serif; margin:0; background:var(--bg); color:var(--text); }
+    .wrap { max-width:1100px; margin:2rem auto; padding:0 1rem; }
+    .card { background:#fff; border-radius:14px; box-shadow:0 8px 24px rgba(0,0,0,.08); overflow:hidden; }
+    .head { background:var(--wiu-purple); color:#fff; padding:1.25rem 1.5rem; display:flex; justify-content:space-between; align-items:center; }
+    .head h1 { margin:0; font-size:1.4rem; }
+    .badge { background:var(--wiu-gold); color:#222; padding:.25rem .6rem; border-radius:999px; font-size:.8rem; font-weight:bold; }
+    .grid { display:grid; grid-template-columns: 1.1fr 1fr; gap:1rem; padding:1rem; }
+    @media (max-width:900px){ .grid { grid-template-columns:1fr; } }
+    .panel { border:1px solid #e8e8f0; border-radius:10px; padding:1rem; }
+    label { display:block; margin:.7rem 0 .25rem; font-size:.9rem; }
+    input, select, textarea, button { width:100%; padding:.6rem .7rem; border:1px solid #cfd3df; border-radius:8px; font-size:.95rem; }
+    button { background:var(--wiu-purple); color:#fff; border:none; cursor:pointer; font-weight:bold; margin-top:1rem; }
+    button:hover{ opacity:.95; }
+    .slots { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:.5rem; margin-top:.5rem; }
+    .slot { border:1px solid #cfd3df; border-radius:8px; padding:.5rem; text-align:center; cursor:pointer; }
+    .slot.active { border-color:var(--wiu-purple); background:#f1ecfb; font-weight:bold; }
+    .tiny { font-size:.85rem; color:#60697a; }
+    .ok { color:#0c7a2f; font-weight:bold; margin-top:.6rem; }
+    .warn { color:#8a5a00; font-size:.85rem; }
+    .hide { display:none; }
+    code { background:#f3f4f8; padding:.1rem .3rem; border-radius:4px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="head">
+      <h1>WIU Libraries Appointment Scheduler</h1>
+      <span class="badge">Calendly-style</span>
+    </div>
+    <div class="grid">
+      <section class="panel">
+        <h2 style="margin-top:0">1) Select Service & Time</h2>
+        <label for="service">Service</label>
+        <select id="service">
+          <option value="research">Research Consultation (45 min)</option>
+          <option value="citation">Citation Help (30 min)</option>
+          <option value="instruction">Course-Integrated Library Instruction (60 min)</option>
+          <option value="archives">Archives & Special Collections (45 min)</option>
+        </select>
+
+        <label for="staff">Faculty / Librarian</label>
+        <select id="staff"></select>
+
+        <label for="date">Date</label>
+        <input id="date" type="date" />
+
+        <label>Available time slots (Central Time)</label>
+        <div id="slots" class="slots"></div>
+        <p class="tiny">Availability shown here is example data. In production, load from WIU scheduling API backed by Google Calendar Free/Busy.</p>
+      </section>
+
+      <section class="panel">
+        <h2 style="margin-top:0">2) Your Details</h2>
+        <label for="name">Full name</label>
+        <input id="name" placeholder="Jane Doe" />
+
+        <label for="email">WIU email</label>
+        <input id="email" type="email" placeholder="j-doe@wiu.edu" />
+
+        <label for="dept">Department</label>
+        <input id="dept" placeholder="History" />
+
+        <label for="notes">Appointment notes</label>
+        <textarea id="notes" rows="3" placeholder="What do you need help with?"></textarea>
+
+        <button id="bookBtn">Book Appointment</button>
+        <p id="result" class="ok hide"></p>
+        <p class="warn">Demo mode: this page simulates Google Calendar integration. See implementation notes below for production setup.</p>
+      </section>
+    </div>
+    <section class="panel" style="margin:0 1rem 1rem;">
+      <h3 style="margin-top:0">Integration Notes for wiu.edu/libraries</h3>
+      <ul>
+        <li>Embed this as a standalone page or inside current CMS content using an <code>&lt;iframe&gt;</code>.</li>
+        <li>Connect to a backend endpoint: <code>POST /api/appointments</code> that creates Google Calendar events using service account delegation.</li>
+        <li>Use Google Calendar API for free/busy lookup to avoid double booking across faculty calendars.</li>
+        <li>Send confirmation email + <code>.ics</code> invite to both requester and faculty member.</li>
+        <li>Add SSO guard if needed (CAS or Microsoft Entra), but allow guest booking for community patrons if policy permits.</li>
+      </ul>
+    </section>
+  </div>
+</div>
+<script>
+  const faculty = [
+    {name:'Dr. Susan Hart (Humanities Librarian)', email:'s-hart@wiu.edu'},
+    {name:'Prof. Mark Ellison (STEM Librarian)', email:'m-ellison@wiu.edu'},
+    {name:'Alicia Reed (Archives Specialist)', email:'a-reed@wiu.edu'}
+  ];
+  const sampleSlots = ['09:00 AM','10:00 AM','11:30 AM','01:00 PM','02:30 PM','03:30 PM'];
+  const state = { slot:null };
+
+  const staffEl = document.getElementById('staff');
+  const slotsEl = document.getElementById('slots');
+  faculty.forEach((f,i)=>{
+    const o=document.createElement('option'); o.value=i; o.textContent=f.name; staffEl.appendChild(o);
+  });
+
+  function renderSlots(){
+    slotsEl.innerHTML='';
+    sampleSlots.forEach(s=>{
+      const b=document.createElement('button');
+      b.type='button'; b.className='slot'+(state.slot===s?' active':''); b.textContent=s;
+      b.onclick=()=>{ state.slot=s; renderSlots(); };
+      slotsEl.appendChild(b);
+    });
+  }
+  renderSlots();
+
+  document.getElementById('bookBtn').onclick = async () => {
+    const payload = {
+      service: document.getElementById('service').value,
+      faculty: faculty[staffEl.value],
+      date: document.getElementById('date').value,
+      time: state.slot,
+      name: document.getElementById('name').value.trim(),
+      email: document.getElementById('email').value.trim(),
+      department: document.getElementById('dept').value.trim(),
+      notes: document.getElementById('notes').value.trim()
+    };
+
+    if (!payload.date || !payload.time || !payload.name || !payload.email) {
+      alert('Please complete required fields: date, time slot, name, and email.');
+      return;
+    }
+
+    // Demo response: replace with fetch('/api/appointments', {method:'POST', ...})
+    const resultEl = document.getElementById('result');
+    resultEl.textContent = `Booked: ${payload.date} at ${payload.time} with ${payload.faculty.name}. Confirmation sent to ${payload.email}.`;
+    resultEl.classList.remove('hide');
+  };
+</script>
+</body>
+</html>
